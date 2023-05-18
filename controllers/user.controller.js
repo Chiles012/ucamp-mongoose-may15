@@ -1,4 +1,6 @@
 const userModel = require('../models/user.model');
+const bcrypt = require('bcrypt');
+const { generateJWT } = require('../utils/jwt');
 
 // crear nuestro CRUD
 
@@ -16,14 +18,16 @@ const getUsers = async (req, res) => {
 
 }
 
-// POST ( crear )
+// POST ( crear ) / register
 const createUser = async (req, res) => {
     const { email, name, password, age } = req.body;
+
+    const hash = bcrypt.hashSync(password, 10);
 
     const user = new userModel({
         email: email,
         name: name,
-        password: password,
+        password: hash,
         age: age
     })
 
@@ -76,9 +80,53 @@ const userDelete = async (req, res) => {
 
 }
 
+// Login / Post 
+const login = async (req, res) => {
+
+    const { email, password } = req.body;
+
+    const user = await userModel.findOne({ email: email });
+
+    if (!user) {
+        return res
+                .status(404)
+                .json({
+                    message: 'Usuario no encontrado'
+                })
+                .send()
+    }
+
+    const isMatch = bcrypt.compareSync(password, user.password);
+
+    if (isMatch) {
+        const token = generateJWT(user._id);
+
+        return res
+                .status(200)
+                .json({
+                    message: 'Usuario logeado correctamente',
+                    user: {
+                        age: user.age,
+                        email: user.email
+                    },
+                    token: token
+                })
+                .send()
+    } else {
+        return res
+                .status(401)
+                .json({
+                   message: 'Usuario incorrecto'
+                })
+                .send()
+    }
+
+}
+
 module.exports = {
     getUsers,
     createUser,
     userDelete,
-    userUpdate
+    userUpdate,
+    login
 }

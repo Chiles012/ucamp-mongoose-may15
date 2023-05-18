@@ -1,6 +1,6 @@
 const express = require('express'); // imports en node js sin ninguna configuracion
 const app = express();
-const { getUsers, createUser, userDelete, userUpdate } = require('./controllers/user.controller')
+const { getUsers, createUser, userDelete, userUpdate, login } = require('./controllers/user.controller')
 const mongoose = require('mongoose');
 require('dotenv').config() // importamos dotenv (conocidos como variables de entorno y se guardan en el archivo .env)
 const port = process.env.PORT || 3000; // regularmente se usa el puerto 3000
@@ -18,6 +18,7 @@ mongoose.connect(process.env.HOSTDB).then(() => {
 
 app.get('/user', getUsers);
 app.post('/user', createUser);
+app.post('/user/login', login);
 app.put('/user/:id', userUpdate);
 app.delete('/user/:id', userDelete);
 

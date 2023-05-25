@@ -96,6 +96,8 @@ const login = async (req, res) => {
                 .send()
     }
 
+    console.log(password, user.password);
+
     const isMatch = bcrypt.compareSync(password, user.password);
 
     if (isMatch) {
